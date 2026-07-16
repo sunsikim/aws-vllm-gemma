@@ -1,0 +1,33 @@
+services:
+  gemma4:
+    image: vllm/vllm-openai:v0.25.1
+    container_name: gemma4
+    ipc: host
+    network_mode: host
+    volumes:
+      - /mnt/models:/root/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command:
+      - --model
+      - /root/models/gemma-4-26B-A4B-it
+      - --served-model-name
+      - google/gemma-4-26B-A4B-it
+      - --tensor-parallel-size
+      - "1"
+      - --max-model-len
+      - "9000"
+      - --gpu-memory-utilization
+      - "0.92"
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --limit-mm-per-prompt
+      - '{"image": 1, "video": 0}'
+    restart: unless-stopped
